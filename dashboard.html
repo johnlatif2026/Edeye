@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+</head>
+
+<body>
+
+<h2>Requests</h2>
+<div id="list"></div>
+
+<script>
+async function load() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/requests", {
+    headers: { Authorization: token }
+  });
+
+  if (res.status !== 200) {
+    location.href = "/login";
+    return;
+  }
+
+  const data = await res.json();
+
+  document.getElementById("list").innerHTML =
+    data.map(r => `
+      <div>
+        <p>${r.name} - ${r.type} - ${r.phone} - ${r.time}</p>
+      </div>
+    `).join("");
+}
+
+load();
+</script>
+
+</body>
+</html>
