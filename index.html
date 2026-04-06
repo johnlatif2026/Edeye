@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>العيدية</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f5f7fa;
+  text-align: center;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  background: #e8f0ff;
+}
+
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>🎉 العيدية</h2>
+
+  <input id="name" placeholder="اسمك" />
+
+  <div class="card" onclick="selectType('take')">
+    عديتك آخذ 50 جنيه
+  </div>
+
+  <div class="card" onclick="selectType('give')">
+    عديتك أعطي 50 جنيه
+  </div>
+
+  <div id="extra"></div>
+
+  <button onclick="submit()">إرسال</button>
+</div>
+
+<script>
+let type = null;
+
+function selectType(t) {
+  type = t;
+  const extra = document.getElementById("extra");
+
+  if (t === "take") {
+    extra.innerHTML = `<input id="phone" placeholder="رقمك" />`;
+  } else {
+    extra.innerHTML = `<p>حول على الرقم: 01000000000</p>`;
+  }
+}
+
+async function submit() {
+  if (localStorage.getItem("sent")) {
+    alert("أرسلت قبل كده!");
+    return;
+  }
+
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone")?.value || "-";
+
+  const res = await fetch("/api/request", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ name, type, phone })
+  });
+
+  if (res.ok) {
+    localStorage.setItem("sent", true);
+    alert("تم الإرسال 🎉");
+  }
+}
+</script>
+
+</body>
+</html>
