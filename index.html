@@ -3,93 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Eidety</title>
-
-<!-- favicon -->
 <link rel="icon" href="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
-
 <style>
-body {
+/* خطوط وألوان */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+body{
   margin:0;
-  font-family: 'Cairo', sans-serif;
+  font-family:'Cairo',sans-serif;
   background: linear-gradient(135deg,#667eea,#764ba2);
   color:white;
-  text-align:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
   overflow-x:hidden;
+  transition:background 1s;
 }
-
-.container {
+.container{
+  width:90%;
   max-width:400px;
-  margin:auto;
-  padding:30px;
+  text-align:center;
 }
-
-.logo {
+.logo{
   width:80px;
-  margin-bottom:10px;
+  margin-bottom:15px;
 }
-
-.hidden { display:none; }
-
-input {
+.hidden{display:none;}
+input,button{
   width:100%;
-  padding:12px;
+  padding:14px;
+  margin:10px 0;
+  border-radius:12px;
   border:none;
-  border-radius:8px;
-  margin-top:10px;
+  font-size:16px;
 }
-
-button {
-  margin-top:10px;
-  padding:12px;
-  width:100%;
-  border:none;
-  border-radius:8px;
+button{
   background:#00c9a7;
   color:white;
+  font-weight:bold;
   cursor:pointer;
+  transition:0.3s;
 }
-
-.cards {
-  display:flex;
-  flex-direction:column;
+button:hover{
+  background:#00b38f;
+}
+.cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:15px;
   margin-top:20px;
 }
-
-.card {
+.card{
   background:white;
   color:#333;
   padding:20px;
   border-radius:15px;
   cursor:pointer;
   transition:0.4s;
-  transform:scale(1);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+  font-size:14px;
 }
-
-.card:hover {
+.card:hover{
   transform:scale(1.05);
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
 }
-
-.fade-out {
+.fade-out{
   opacity:0;
   transform:scale(0.8);
+  transition:0.4s;
 }
-
-.expand {
+.expand{
   transform:scale(1.1);
+  transition:0.4s;
 }
-
+@media(max-width:400px){
+  .cards{
+    grid-template-columns:1fr;
+  }
+  .card{
+    font-size:16px;
+  }
+}
+#result{
+  margin-top:20px;
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
 <img class="logo" src="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
-
 <h2>Eidety</h2>
 
 <!-- STEP 1 -->
@@ -101,13 +108,10 @@ button {
 <!-- STEP 2 -->
 <div id="step2" class="hidden">
   <div class="cards" id="cards">
-    <div class="card" onclick="choose('take',this)">
-     عديتك تاخد 50 جنيه
-    </div>
-
-    <div class="card" onclick="choose('give',this)">
-     عديتك تدي 50 جنيه
-    </div>
+    <div class="card" onclick="choose('take',this)"> عديتك هتحول 50 جنيه</div>
+    <div class="card" onclick="choose('give',this)"> عديتك هتدي 50 جنيه</div>
+    <div class="card" onclick="choose('take',this)"> عديتك هتدي 50 جنيه</div>
+    <div class="card" onclick="choose('give',this)"> عديتك هتحول 50 جنيه</div>
   </div>
 </div>
 
@@ -120,7 +124,11 @@ button {
 let selectedType=null;
 
 function enter(){
-  if(!name.value) return alert("اكتب اسمك");
+  const n = document.getElementById("name").value.trim();
+  if(!n){
+    alert("من فضلك ادخل الاسم");
+    return;
+  }
   document.getElementById("step1").classList.add("hidden");
   document.getElementById("step2").classList.remove("hidden");
 }
@@ -128,26 +136,20 @@ function enter(){
 // اختيار
 function choose(type,el){
   selectedType=type;
-
   const cards=document.querySelectorAll(".card");
-
   cards.forEach(c=>{
     if(c!==el){
       c.classList.add("fade-out");
-      setTimeout(()=>c.style.display="none",300);
+      setTimeout(()=>c.style.display="none",400);
     } else {
       c.classList.add("expand");
     }
   });
-
-  setTimeout(()=>{
-    openCard(type);
-  },400);
+  setTimeout(()=>openCard(type),500);
 }
 
 function openCard(type){
   let html="";
-
   if(type==="take"){
     html=`
       <input id="phone" placeholder="رقمك">
@@ -160,42 +162,38 @@ function openCard(type){
       <button onclick="send()">تم</button>
     `;
   }
-
   document.getElementById("result").innerHTML=html;
 }
 
 // إرسال
 async function send(){
   if(localStorage.getItem("sent")){
-    alert("أنت بعت قبل كده");
+    alert("انت بعت قبل كده");
     return;
   }
-
   const res = await fetch("/api/request",{
     method:"POST",
     headers:{ "Content-Type":"application/json"},
     body:JSON.stringify({
-      name:name.value,
+      name:document.getElementById("name").value,
       type:selectedType,
       phone:document.getElementById("phone")?.value || "-"
     })
   });
-
   if(res.ok){
     localStorage.setItem("sent",true);
-    document.body.innerHTML="<h2>تم بنجاح</h2>";
+    document.body.innerHTML="<h2>تم الإرسال بنجاح</h2>";
   }
 }
 
-// 🎨 تغيير عشوائي للخلفية
+// تغيير عشوائي للخلفية
 setInterval(()=>{
   const colors=[
     "linear-gradient(135deg,#667eea,#764ba2)",
     "linear-gradient(135deg,#ff758c,#ff7eb3)",
     "linear-gradient(135deg,#43cea2,#185a9d)"
   ];
-  document.body.style.background =
-    colors[Math.floor(Math.random()*colors.length)];
+  document.body.style.background=colors[Math.floor(Math.random()*colors.length)];
 },5000);
 
 </script>
