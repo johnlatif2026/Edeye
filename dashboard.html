@@ -2,34 +2,95 @@
 <html>
 <head>
 <title>Dashboard</title>
+
+<style>
+body{
+  font-family:sans-serif;
+  background:#f4f4f4;
+  padding:20px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+}
+
+button{
+  padding:8px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.logout{
+  background:red;
+  color:white;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  margin-top:10px;
+  border-radius:10px;
+}
+.delete{
+  background:#ff4d4d;
+  color:white;
+  margin-top:5px;
+}
+</style>
 </head>
 
 <body>
 
-<h2>Requests</h2>
+<div class="top">
+  <h2>Requests</h2>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
 <div id="list"></div>
 
 <script>
-async function load() {
-  const token = localStorage.getItem("token");
+async function load(){
+  const token=localStorage.getItem("token");
 
-  const res = await fetch("/api/requests", {
-    headers: { Authorization: token }
+  const res=await fetch("/api/requests",{
+    headers:{ Authorization:token }
   });
 
-  if (res.status !== 200) {
-    location.href = "/login";
+  if(res.status!==200){
+    location.href="/login";
     return;
   }
 
-  const data = await res.json();
+  const data=await res.json();
 
-  document.getElementById("list").innerHTML =
-    data.map(r => `
-      <div>
-        <p>${r.name} - ${r.type} - ${r.phone} - ${r.time}</p>
+  document.getElementById("list").innerHTML=
+    data.map((r,i)=>`
+      <div class="card">
+        <p><b>${r.name}</b></p>
+        <p>${r.type}</p>
+        <p>${r.phone}</p>
+        <p>${r.time}</p>
+        <button class="delete" onclick="del(${i})">حذف</button>
       </div>
     `).join("");
+}
+
+async function del(i){
+  const token=localStorage.getItem("token");
+
+  await fetch("/api/delete/"+i,{
+    method:"DELETE",
+    headers:{ Authorization:token }
+  });
+
+  load();
+}
+
+function logout(){
+  localStorage.removeItem("token");
+  location.href="/login";
 }
 
 load();
