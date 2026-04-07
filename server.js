@@ -88,6 +88,12 @@ app.get("/api/requests", authMiddleware, (req, res) => {
   res.json(requests);
 });
 
+app.delete("/api/delete/:id", authMiddleware, (req, res) => {
+  const id = req.params.id;
+  requests.splice(id, 1);
+  res.json({ message: "Deleted" });
+});
+
 // fallback routes
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
