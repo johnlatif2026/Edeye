@@ -6,8 +6,9 @@
 <title>Eidety</title>
 <link rel="icon" href="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
 <style>
-/* خطوط وألوان */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+/* body */
 body{
   margin:0;
   font-family:'Cairo',sans-serif;
@@ -20,19 +21,40 @@ body{
   overflow-x:hidden;
   transition:background 1s;
 }
+
+/* container أكبر */
 .container{
-  width:90%;
-  max-width:400px;
+  width:95%;
+  max-width:500px;
+  background:rgba(255,255,255,0.05);
+  border-radius:25px;
+  padding:30px 20px 40px 20px;
   text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
+
+/* لوغو أكبر */
 .logo{
-  width:80px;
-  margin-bottom:15px;
+  width:120px;
+  border-radius:20px;
+  margin-bottom:20px;
+  border:2px solid rgba(255,255,255,0.5);
 }
-.hidden{display:none;}
+
+/* alerts */
+.alert-sent{
+  background:rgba(0,0,0,0.6);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:15px;
+  font-weight:bold;
+  font-size:16px;
+}
+
+/* input & button */
 input,button{
   width:100%;
-  padding:14px;
+  padding:16px;
   margin:10px 0;
   border-radius:12px;
   border:none;
@@ -48,28 +70,32 @@ button{
 button:hover{
   background:#00b38f;
 }
+
+/* Cards */
 .cards{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:15px;
-  margin-top:20px;
+  gap:20px;
+  margin-top:25px;
 }
 .card{
   background:white;
   color:#333;
-  padding:20px;
-  border-radius:15px;
+  padding:25px;
+  border-radius:20px;
   cursor:pointer;
   transition:0.4s;
   display:flex;
   justify-content:center;
   align-items:center;
   font-weight:bold;
-  font-size:14px;
+  font-size:16px;
+  flex-direction:column;
+  box-shadow:0 8px 20px rgba(0,0,0,0.25);
 }
 .card:hover{
-  transform:scale(1.05);
-  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+  transform:scale(1.07);
+  box-shadow:0 12px 25px rgba(0,0,0,0.35);
 }
 .fade-out{
   opacity:0;
@@ -77,19 +103,27 @@ button:hover{
   transition:0.4s;
 }
 .expand{
-  transform:scale(1.1);
+  transform:scale(1.15);
   transition:0.4s;
 }
-@media(max-width:400px){
+#result{
+  margin-top:25px;
+  text-align:center;
+}
+@media(max-width:450px){
   .cards{
     grid-template-columns:1fr;
   }
   .card{
-    font-size:16px;
+    font-size:18px;
+    padding:20px;
   }
-}
-#result{
-  margin-top:20px;
+  .container{
+    padding:25px 15px 30px 15px;
+  }
+  .logo{
+    width:100px;
+  }
 }
 </style>
 </head>
@@ -98,6 +132,8 @@ button:hover{
 <div class="container">
 <img class="logo" src="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
 <h2>Eidety</h2>
+
+<div id="alert-sent" class="alert-sent hidden">انت بعت قبل كده 😅</div>
 
 <!-- STEP 1 -->
 <div id="step1">
@@ -108,10 +144,18 @@ button:hover{
 <!-- STEP 2 -->
 <div id="step2" class="hidden">
   <div class="cards" id="cards">
-    <div class="card" onclick="choose('take',this)"> عديتك هتحول 50 جنيه</div>
-    <div class="card" onclick="choose('give',this)"> عديتك هتدي 50 جنيه</div>
-    <div class="card" onclick="choose('take',this)"> عديتك هتدي 50 جنيه</div>
-    <div class="card" onclick="choose('give',this)"> عديتك هتحول 50 جنيه</div>
+    <div class="card" onclick="choose('take',this)">
+      <p>عديتك هتاخد 50 جنيه</p>
+    </div>
+    <div class="card" onclick="choose('give',this)">
+      <p>عديتك هتدي 50 جنيه</p>
+    </div>
+    <div class="card" onclick="choose('take',this)">
+      <p>عديتك هتدي 50 جنيه</p>
+    </div>
+    <div class="card" onclick="choose('give',this)">
+      <p>عديتك هتاخد 50 جنيه</p>
+    </div>
   </div>
 </div>
 
@@ -123,6 +167,14 @@ button:hover{
 <script>
 let selectedType=null;
 
+// عند تحميل الصفحة نتحقق هل المستخدم سبق وأرسل
+window.onload = ()=>{
+  if(localStorage.getItem("sent")){
+    document.getElementById("alert-sent").classList.remove("hidden");
+  }
+}
+
+// الدخول
 function enter(){
   const n = document.getElementById("name").value.trim();
   if(!n){
@@ -133,7 +185,7 @@ function enter(){
   document.getElementById("step2").classList.remove("hidden");
 }
 
-// اختيار
+// اختيار البوكس
 function choose(type,el){
   selectedType=type;
   const cards=document.querySelectorAll(".card");
@@ -145,30 +197,24 @@ function choose(type,el){
       c.classList.add("expand");
     }
   });
-  setTimeout(()=>openCard(type),500);
+
+  if(type==="give"){
+    // ارسال مباشر بدون رقم
+    send();
+  } else {
+    setTimeout(()=>openCard(type),500);
+  }
 }
 
 function openCard(type){
-  let html="";
-  if(type==="take"){
-    html=`
-      <input id="phone" placeholder="رقمك">
-      <button onclick="send()">إرسال</button>
-    `;
-  }else{
-    html=`
-      <h3>حول على الرقم 👇</h3>
-      <p style="font-size:20px">01274445091</p>
-      <button onclick="send()">تم</button>
-    `;
-  }
+  let html=`<input id="phone" placeholder="رقمك"><button onclick="send()">إرسال</button>`;
   document.getElementById("result").innerHTML=html;
 }
 
-// إرسال
+// ارسال البيانات
 async function send(){
   if(localStorage.getItem("sent")){
-    alert("انت بعت قبل كده");
+    document.getElementById("alert-sent").classList.remove("hidden");
     return;
   }
   const res = await fetch("/api/request",{
@@ -182,11 +228,12 @@ async function send(){
   });
   if(res.ok){
     localStorage.setItem("sent",true);
-    document.body.innerHTML="<h2>تم الإرسال بنجاح</h2>";
+    document.getElementById("alert-sent").classList.remove("hidden");
+    document.getElementById("result").innerHTML="<h2>تم الإرسال بنجاح</h2>";
   }
 }
 
-// تغيير عشوائي للخلفية
+// تغيير الخلفية عشوائي
 setInterval(()=>{
   const colors=[
     "linear-gradient(135deg,#667eea,#764ba2)",
