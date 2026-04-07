@@ -1,90 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
-
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 body{
-  font-family:sans-serif;
+  margin:0;
+  font-family:'Cairo',sans-serif;
   background:#f4f4f4;
-  padding:20px;
+  padding:10px;
 }
-
 .top{
   display:flex;
   justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
 }
-
-button{
-  padding:8px 12px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+h2{
+  margin:0;
 }
-
 .logout{
-  background:red;
+  padding:8px 12px;
+  background:#f44336;
   color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.3s;
 }
-
+.logout:hover{
+  background:#d32f2f;
+}
+.cards-container{
+  display:grid;
+  gap:15px;
+  grid-template-columns:1fr 1fr;
+}
 .card{
   background:white;
   padding:15px;
-  margin-top:10px;
-  border-radius:10px;
+  border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  position:relative;
+  transition:0.3s;
 }
-.delete{
+.card p{
+  margin:5px 0;
+  font-size:14px;
+  word-break: break-word;
+}
+.delete-btn{
+  position:absolute;
+  top:10px;
+  right:10px;
   background:#ff4d4d;
+  border:none;
+  padding:5px 8px;
+  border-radius:6px;
   color:white;
-  margin-top:5px;
+  cursor:pointer;
+  font-size:12px;
+  transition:0.3s;
+}
+.delete-btn:hover{
+  background:#e60000;
+}
+@media(max-width:500px){
+  .cards-container{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
-
 <body>
 
 <div class="top">
-  <h2>Requests</h2>
-  <button class="logout" onclick="logout()">Logout</button>
+  <h2>طلبات العيدية</h2>
+  <button class="logout" onclick="logout()">تسجيل خروج</button>
 </div>
 
-<div id="list"></div>
+<div class="cards-container" id="list"></div>
 
 <script>
 async function load(){
   const token=localStorage.getItem("token");
-
-  const res=await fetch("/api/requests",{
-    headers:{ Authorization:token }
-  });
-
-  if(res.status!==200){
-    location.href="/login";
-    return;
-  }
-
+  if(!token){location.href="/login";return;}
+  
+  const res=await fetch("/api/requests",{headers:{Authorization:token}});
+  if(res.status!==200){location.href="/login";return;}
+  
   const data=await res.json();
-
-  document.getElementById("list").innerHTML=
-    data.map((r,i)=>`
-      <div class="card">
-        <p><b>${r.name}</b></p>
-        <p>${r.type}</p>
-        <p>${r.phone}</p>
-        <p>${r.time}</p>
-        <button class="delete" onclick="del(${i})">حذف</button>
-      </div>
-    `).join("");
+  const list=document.getElementById("list");
+  list.innerHTML=data.map((r,i)=>`
+    <div class="card">
+      <p><b>${r.name}</b></p>
+      <p>النوع: ${r.type}</p>
+      <p>الرقم: ${r.phone}</p>
+      <p>${r.time}</p>
+      <button class="delete-btn" onclick="del(${i})">حذف</button>
+    </div>
+  `).join("");
 }
 
 async function del(i){
   const token=localStorage.getItem("token");
-
-  await fetch("/api/delete/"+i,{
-    method:"DELETE",
-    headers:{ Authorization:token }
-  });
-
+  await fetch("/api/delete/"+i,{method:"DELETE",headers:{Authorization:token}});
   load();
 }
 
