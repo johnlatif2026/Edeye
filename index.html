@@ -8,7 +8,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-/* body */
+/* Body */
 body{
   margin:0;
   font-family:'Cairo',sans-serif;
@@ -18,11 +18,10 @@ body{
   justify-content:center;
   align-items:center;
   min-height:100vh;
-  overflow-x:hidden;
   transition:background 1s;
 }
 
-/* container أكبر */
+/* Container */
 .container{
   width:95%;
   max-width:500px;
@@ -33,15 +32,15 @@ body{
   box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* لوغو أكبر */
+/* Logo */
 .logo{
   width:120px;
   border-radius:20px;
-  margin-bottom:20px;
+  margin-bottom:15px;
   border:2px solid rgba(255,255,255,0.5);
 }
 
-/* alerts */
+/* Alert */
 .alert-sent{
   background:rgba(0,0,0,0.6);
   padding:12px;
@@ -51,7 +50,7 @@ body{
   font-size:16px;
 }
 
-/* input & button */
+/* Inputs & Buttons */
 input,button{
   width:100%;
   padding:16px;
@@ -92,30 +91,28 @@ button:hover{
   font-size:16px;
   flex-direction:column;
   box-shadow:0 8px 20px rgba(0,0,0,0.25);
+  opacity:0;
+}
+.card.show{
+  opacity:1;
+  transition:0.5s;
 }
 .card:hover{
   transform:scale(1.07);
   box-shadow:0 12px 25px rgba(0,0,0,0.35);
 }
-.fade-out{
-  opacity:0;
-  transform:scale(0.8);
-  transition:0.4s;
-}
-.expand{
-  transform:scale(1.15);
-  transition:0.4s;
-}
+
 #result{
   margin-top:25px;
   text-align:center;
 }
+
 @media(max-width:450px){
   .cards{
     grid-template-columns:1fr;
   }
   .card{
-    font-size:18px;
+    font-size:16px;
     padding:20px;
   }
   .container{
@@ -131,9 +128,10 @@ button:hover{
 
 <div class="container">
 <img class="logo" src="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
-<h2>Eidety</h2>
+<h2>خريستوس انيستي</h2>
+<h3>Χριστός ἀνέστη</h3>
 
-<div id="alert-sent" class="alert-sent hidden">انت بعت قبل كده 😅</div>
+<div id="alert-sent" class="alert-sent hidden">انت حولت قبل كده 😅</div>
 
 <!-- STEP 1 -->
 <div id="step1">
@@ -143,20 +141,7 @@ button:hover{
 
 <!-- STEP 2 -->
 <div id="step2" class="hidden">
-  <div class="cards" id="cards">
-    <div class="card" onclick="choose('take',this)">
-      <p>عديتك هتاخد 50 جنيه</p>
-    </div>
-    <div class="card" onclick="choose('give',this)">
-      <p>عديتك هتدي 50 جنيه</p>
-    </div>
-    <div class="card" onclick="choose('take',this)">
-      <p>عديتك هتدي 50 جنيه</p>
-    </div>
-    <div class="card" onclick="choose('give',this)">
-      <p>عديتك هتاخد 50 جنيه</p>
-    </div>
-  </div>
+  <div class="cards" id="cards"></div>
 </div>
 
 <!-- STEP 3 -->
@@ -166,8 +151,14 @@ button:hover{
 
 <script>
 let selectedType=null;
+const boxes=[
+  {label:"هتاخد 50", type:"take", amount:50},
+  {label:"هتدي 50", type:"give", amount:50, phone:"01274445091"},
+  {label:"هتاخد 100", type:"take", amount:100},
+  {label:"هتدي 100", type:"give", amount:100, phone:"01274445091"}
+];
 
-// عند تحميل الصفحة نتحقق هل المستخدم سبق وأرسل
+// عند تحميل الصفحة
 window.onload = ()=>{
   if(localStorage.getItem("sent")){
     document.getElementById("alert-sent").classList.remove("hidden");
@@ -177,59 +168,65 @@ window.onload = ()=>{
 // الدخول
 function enter(){
   const n = document.getElementById("name").value.trim();
-  if(!n){
-    alert("من فضلك ادخل الاسم");
-    return;
-  }
+  if(!n){alert("من فضلك ادخل الاسم"); return;}
   document.getElementById("step1").classList.add("hidden");
   document.getElementById("step2").classList.remove("hidden");
+  showCards();
 }
 
-// اختيار البوكس
-function choose(type,el){
-  selectedType=type;
-  const cards=document.querySelectorAll(".card");
-  cards.forEach(c=>{
-    if(c!==el){
-      c.classList.add("fade-out");
-      setTimeout(()=>c.style.display="none",400);
-    } else {
-      c.classList.add("expand");
-    }
+// عرض البوكسات بشكل عشوائي
+function showCards(){
+  const shuffled = boxes.sort(()=>0.5-Math.random());
+  const container=document.getElementById("cards");
+  container.innerHTML="";
+  shuffled.forEach((b,i)=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`<p>${b.label}</p>`;
+    div.onclick=()=>choose(b);
+    container.appendChild(div);
+    setTimeout(()=>div.classList.add("show"),50*i);
   });
-
-  if(type==="give"){
-    // ارسال مباشر بدون رقم
-    send();
-  } else {
-    setTimeout(()=>openCard(type),500);
-  }
 }
 
-function openCard(type){
-  let html=`<input id="phone" placeholder="رقمك"><button onclick="send()">إرسال</button>`;
-  document.getElementById("result").innerHTML=html;
+// اختيار
+function choose(box){
+  selectedType=box;
+  const cards=document.querySelectorAll(".card");
+  cards.forEach(c=>{c.style.display="none";});
+  if(box.type==="give"){
+    send(box.phone);
+  } else {
+    document.getElementById("result").innerHTML=
+      `<input id="phone" placeholder="رقمك" maxlength="11">
+       <button onclick="send()">إرسال</button>`;
+  }
 }
 
 // ارسال البيانات
-async function send(){
+async function send(phoneNumber){
   if(localStorage.getItem("sent")){
     document.getElementById("alert-sent").classList.remove("hidden");
     return;
   }
+  const phone = phoneNumber || document.getElementById("phone").value.trim();
+  if(selectedType.type==="take"){
+    if(phone.length<10 || phone.length>11){alert("الرقم يجب أن يكون 10-11 رقم"); return;}
+  }
   const res = await fetch("/api/request",{
     method:"POST",
-    headers:{ "Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       name:document.getElementById("name").value,
-      type:selectedType,
-      phone:document.getElementById("phone")?.value || "-"
+      type:selectedType.type,
+      amount:selectedType.amount,
+      phone:phone
     })
   });
   if(res.ok){
     localStorage.setItem("sent",true);
     document.getElementById("alert-sent").classList.remove("hidden");
-    document.getElementById("result").innerHTML="<h2>تم الإرسال بنجاح</h2>";
+    document.getElementById("result").innerHTML="<h2>تم الإرسال بنجاح 🎉</h2>";
   }
 }
 
@@ -242,7 +239,6 @@ setInterval(()=>{
   ];
   document.body.style.background=colors[Math.floor(Math.random()*colors.length)];
 },5000);
-
 </script>
 
 </body>
