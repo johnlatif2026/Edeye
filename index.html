@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>العيدية</title>
+<title>Eidety</title>
 
 <!-- favicon -->
-<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<link rel="icon" href="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
 
 <style>
 body {
@@ -88,9 +88,9 @@ button {
 
 <div class="container">
 
-<img class="logo" src="https://cdn-icons-png.flaticon.com/512/942/942748.png">
+<img class="logo" src="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
 
-<h2>🎉 العيدية</h2>
+<h2>Eidety</h2>
 
 <!-- STEP 1 -->
 <div id="step1">
@@ -102,11 +102,11 @@ button {
 <div id="step2" class="hidden">
   <div class="cards" id="cards">
     <div class="card" onclick="choose('take',this)">
-      🎁 عديتك آخذ 50 جنيه
+     عديتك تاخد 50 جنيه
     </div>
 
     <div class="card" onclick="choose('give',this)">
-      💸 عديتك أعطي 50 جنيه
+     عديتك تدي 50 جنيه
     </div>
   </div>
 </div>
@@ -156,7 +156,7 @@ function openCard(type){
   }else{
     html=`
       <h3>حول على الرقم 👇</h3>
-      <p style="font-size:20px">01000000000</p>
+      <p style="font-size:20px">01274445091</p>
       <button onclick="send()">تم</button>
     `;
   }
@@ -167,7 +167,7 @@ function openCard(type){
 // إرسال
 async function send(){
   if(localStorage.getItem("sent")){
-    alert("أنت أرسلت قبل كده 😅");
+    alert("أنت بعت قبل كده");
     return;
   }
 
@@ -183,7 +183,7 @@ async function send(){
 
   if(res.ok){
     localStorage.setItem("sent",true);
-    document.body.innerHTML="<h2>🎉 تم بنجاح</h2>";
+    document.body.innerHTML="<h2>تم بنجاح</h2>";
   }
 }
 
