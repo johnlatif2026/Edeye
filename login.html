@@ -1,36 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Login</title>
+<title>Admin</title>
+
+<style>
+body{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:#1e1e2f;
+  color:white;
+  font-family:sans-serif;
+}
+
+.box{
+  background:#2a2a40;
+  padding:30px;
+  border-radius:15px;
+  width:300px;
+  text-align:center;
+}
+
+input{
+  width:100%;
+  margin:10px 0;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#4CAF50;
+  border:none;
+  color:white;
+  border-radius:8px;
+}
+</style>
+
 </head>
 
 <body>
 
+<div class="box">
 <h2>Admin Login</h2>
 
-<input id="user" placeholder="Username" />
-<input id="pass" type="password" placeholder="Password" />
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
+</div>
 
 <script>
-async function login() {
-  const res = await fetch("/api/login", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      username: user.value,
-      password: pass.value
+async function login(){
+  const res=await fetch("/api/login",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json"},
+    body:JSON.stringify({
+      username:user.value,
+      password:pass.value
     })
   });
 
-  const data = await res.json();
+  const data=await res.json();
 
-  if (data.token) {
-    localStorage.setItem("token", data.token);
-    window.location.href = "/dashboard";
-  } else {
-    alert("Wrong credentials");
+  if(data.token){
+    localStorage.setItem("token",data.token);
+    location.href="/dashboard";
+  }else{
+    alert("غلط");
   }
 }
 </script>
