@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eidety</title>
+<link rel="icon" href="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -17,7 +18,6 @@ body{
   justify-content:center;
   align-items:center;
   min-height:100vh;
-  transition:background 1s;
 }
 
 .container{
@@ -25,77 +25,62 @@ body{
   max-width:500px;
   background:rgba(255,255,255,0.05);
   border-radius:25px;
-  padding:30px 20px 40px 20px;
+  padding:30px;
   text-align:center;
   box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* SVG Logo */
 .logo{
+  width:120px;
+  border-radius:20px;
   margin-bottom:15px;
 }
 
-/* Alert */
-.alert-sent{
+.alert{
   background:rgba(0,0,0,0.6);
   padding:12px;
   border-radius:10px;
   margin-bottom:15px;
   font-weight:bold;
-  font-size:16px;
 }
 
-/* Inputs & Buttons */
 input,button{
   width:100%;
-  padding:16px;
+  padding:15px;
   margin:10px 0;
   border-radius:12px;
   border:none;
   font-size:16px;
 }
+
 button{
   background:#00c9a7;
   color:white;
   font-weight:bold;
   cursor:pointer;
 }
-button:hover{
-  background:#00b38f;
-}
 
-/* Cards */
 .cards{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:20px;
-  margin-top:25px;
+  margin-top:20px;
 }
+
 .card{
   background:white;
   color:#333;
-  padding:25px;
+  padding:30px;
   border-radius:20px;
   cursor:pointer;
-  transition:0.4s;
-  display:flex;
-  justify-content:center;
-  align-items:center;
   font-weight:bold;
-  font-size:16px;
-  flex-direction:column;
   box-shadow:0 8px 20px rgba(0,0,0,0.25);
-  opacity:0;
-}
-.card.show{
-  opacity:1;
-}
-.card:hover{
-  transform:scale(1.07);
+  font-size:40px;
+  transition:0.4s;
 }
 
-#result{
-  margin-top:25px;
+.card:hover{
+  transform:scale(1.1) rotate(5deg);
 }
 
 .hidden{
@@ -108,25 +93,17 @@ button:hover{
 
 <div class="container">
 
-<!-- SVG LOGO -->
-<div class="logo">
-<svg width="120" height="120" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="45" fill="white" opacity="0.1"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="18" font-weight="bold">
-    Eidety
-  </text>
-</svg>
-</div>
+<img class="logo" src="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
 
 <h2>خريستوس انيستي</h2>
 <h3>Χριστός ἀνέστη</h3>
 
-<div id="alert-sent" class="alert-sent hidden">انت حولت قبل كده 😅</div>
+<div id="alert" class="alert hidden">انت حولت قبل كده 😅</div>
 
 <!-- STEP 1 -->
 <div id="step1">
   <input id="name" placeholder="اكتب اسمك">
-  <button onclick="enter()">دخول</button>
+  <button id="enterBtn" onclick="enter()">دخول</button>
 </div>
 
 <!-- STEP 2 -->
@@ -134,129 +111,153 @@ button:hover{
   <div class="cards" id="cards"></div>
 </div>
 
-<!-- STEP 3 -->
+<!-- RESULT -->
 <div id="result"></div>
 
 </div>
 
 <script>
+
 let selectedType=null;
 
 const boxes=[
-  {label:"هتاخد 50", type:"take", amount:50},
-  {label:"هتدي 50", type:"give", amount:50, phone:"01274445091"},
-  {label:"هتاخد 100", type:"take", amount:100},
-  {label:"هتدي 100", type:"give", amount:100, phone:"01274445091"}
+{label:"هتاخد 50",type:"take",amount:50},
+{label:"هتدي 50",type:"give",amount:50,phone:"01274445091"},
+{label:"هتاخد 100",type:"take",amount:100},
+{label:"هتدي 100",type:"give",amount:100,phone:"01274445091"}
 ];
 
-// عند تحميل الصفحة
-window.onload = ()=>{
-  if(localStorage.getItem("sent")){
-    document.getElementById("alert-sent").classList.remove("hidden");
+// عند فتح الصفحة
+window.onload=function(){
 
-    // قفل الموقع بالكامل
-    document.getElementById("step1").innerHTML="";
-    document.getElementById("step2").innerHTML="";
-    document.getElementById("result").innerHTML="<h2>❌ غير مسموح بالمشاركة مرة تانية</h2>";
-  }
+if(localStorage.getItem("sent")){
+
+document.getElementById("alert").classList.remove("hidden");
+
+document.getElementById("name").disabled=true;
+document.getElementById("enterBtn").disabled=true;
+
+}
+
 }
 
 // دخول
 function enter(){
-  if(localStorage.getItem("sent")){
-    document.getElementById("alert-sent").classList.remove("hidden");
-    return;
-  }
 
-  const n = document.getElementById("name").value.trim();
-  if(!n){alert("من فضلك ادخل الاسم"); return;}
+if(localStorage.getItem("sent")) return;
 
-  document.getElementById("step1").classList.add("hidden");
-  document.getElementById("step2").classList.remove("hidden");
-  showCards();
+const n=document.getElementById("name").value.trim();
+
+if(!n){
+alert("اكتب اسمك");
+return;
+}
+
+document.getElementById("step1").classList.add("hidden");
+document.getElementById("step2").classList.remove("hidden");
+
+showCards();
+
 }
 
 // عرض البوكسات
 function showCards(){
-  const shuffled = boxes.sort(()=>0.5-Math.random());
-  const container=document.getElementById("cards");
-  container.innerHTML="";
 
-  shuffled.forEach((b,i)=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.innerHTML=`<p>${b.label}</p>`;
-    div.onclick=()=>choose(b);
-    container.appendChild(div);
+const shuffled = boxes.sort(()=>0.5-Math.random());
 
-    setTimeout(()=>div.classList.add("show"),50*i);
-  });
+const container = document.getElementById("cards");
+container.innerHTML = "";
+
+shuffled.forEach((b)=>{
+
+const div = document.createElement("div");
+div.className = "card";
+
+// شكل الهدية
+div.innerHTML = "🎁";
+
+div.onclick = ()=>{
+openCard(div, b);
+};
+
+container.appendChild(div);
+
+});
+
+}
+
+// فتح البوكس
+function openCard(element, box){
+
+if(localStorage.getItem("sent")) return;
+
+element.innerHTML = `<p style="font-size:18px">${box.label}</p>`;
+element.style.background = "#ffeaa7";
+
+element.onclick = null;
+
+setTimeout(()=>{
+choose(box);
+},800);
+
 }
 
 // اختيار
 function choose(box){
-  if(localStorage.getItem("sent")){
-    document.getElementById("alert-sent").classList.remove("hidden");
-    return;
-  }
 
-  selectedType=box;
+if(localStorage.getItem("sent")) return;
 
-  document.querySelectorAll(".card").forEach(c=>c.style.display="none");
+selectedType=box;
 
-  if(box.type==="give"){
-    send(box.phone);
-  } else {
-    document.getElementById("result").innerHTML=
-      `<input id="phone" placeholder="رقمك" maxlength="11">
-       <button onclick="send()">إرسال</button>`;
-  }
+document.getElementById("cards").innerHTML="";
+
+if(box.type==="give"){
+
+send(box.phone);
+
+}else{
+
+document.getElementById("result").innerHTML=`
+<input id="phone" placeholder="رقمك">
+<button onclick="send()">ارسال</button>
+`;
+
 }
 
-// إرسال
+}
+
+// ارسال
 async function send(phoneNumber){
-  if(localStorage.getItem("sent")){
-    document.getElementById("alert-sent").classList.remove("hidden");
-    return;
-  }
 
-  const phone = phoneNumber || document.getElementById("phone").value.trim();
+if(localStorage.getItem("sent")) return;
 
-  if(selectedType.type==="take"){
-    if(phone.length<10 || phone.length>11){
-      alert("الرقم يجب أن يكون 10-11 رقم");
-      return;
-    }
-  }
+const phone=phoneNumber||document.getElementById("phone").value.trim();
 
-  const res = await fetch("/api/request",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      name:document.getElementById("name").value,
-      type:selectedType.type,
-      amount:selectedType.amount,
-      phone:phone
-    })
-  });
+const res = await fetch("/api/request",{
 
-  if(res.ok){
-    localStorage.setItem("sent",true);
+method:"POST",
+headers:{"Content-Type":"application/json"},
 
-    document.getElementById("alert-sent").classList.remove("hidden");
-    document.getElementById("result").innerHTML="<h2>تم الإرسال بنجاح 🎉</h2>";
-  }
+body:JSON.stringify({
+name:document.getElementById("name").value,
+type:selectedType.type,
+amount:selectedType.amount,
+phone:phone
+})
+
+});
+
+if(res.ok){
+
+localStorage.setItem("sent",true);
+
+document.getElementById("alert").classList.remove("hidden");
+document.getElementById("result").innerHTML="<h2>تم الإرسال 🎉</h2>";
+
 }
 
-// تغيير الخلفية
-setInterval(()=>{
-  const colors=[
-    "linear-gradient(135deg,#667eea,#764ba2)",
-    "linear-gradient(135deg,#ff758c,#ff7eb3)",
-    "linear-gradient(135deg,#43cea2,#185a9d)"
-  ];
-  document.body.style.background=colors[Math.floor(Math.random()*colors.length)];
-},5000);
+}
+
 </script>
 
 </body>
