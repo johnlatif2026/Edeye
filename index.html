@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eidety</title>
-<link rel="icon" href="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-/* Body */
 body{
   margin:0;
   font-family:'Cairo',sans-serif;
@@ -21,7 +20,6 @@ body{
   transition:background 1s;
 }
 
-/* Container */
 .container{
   width:95%;
   max-width:500px;
@@ -32,12 +30,9 @@ body{
   box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* Logo */
+/* SVG Logo */
 .logo{
-  width:120px;
-  border-radius:20px;
   margin-bottom:15px;
-  border:2px solid rgba(255,255,255,0.5);
 }
 
 /* Alert */
@@ -64,7 +59,6 @@ button{
   color:white;
   font-weight:bold;
   cursor:pointer;
-  transition:0.3s;
 }
 button:hover{
   background:#00b38f;
@@ -95,39 +89,35 @@ button:hover{
 }
 .card.show{
   opacity:1;
-  transition:0.5s;
 }
 .card:hover{
   transform:scale(1.07);
-  box-shadow:0 12px 25px rgba(0,0,0,0.35);
 }
 
 #result{
   margin-top:25px;
-  text-align:center;
 }
 
-@media(max-width:450px){
-  .cards{
-    grid-template-columns:1fr;
-  }
-  .card{
-    font-size:16px;
-    padding:20px;
-  }
-  .container{
-    padding:25px 15px 30px 15px;
-  }
-  .logo{
-    width:100px;
-  }
+.hidden{
+  display:none;
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-<img class="logo" src="https://i.postimg.cc/Nj83FS93/Eidety.jpg">
+
+<!-- SVG LOGO -->
+<div class="logo">
+<svg width="120" height="120" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="45" fill="white" opacity="0.1"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="18" font-weight="bold">
+    Eidety
+  </text>
+</svg>
+</div>
+
 <h2>خريستوس انيستي</h2>
 <h3>Χριστός ἀνέστη</h3>
 
@@ -151,6 +141,7 @@ button:hover{
 
 <script>
 let selectedType=null;
+
 const boxes=[
   {label:"هتاخد 50", type:"take", amount:50},
   {label:"هتدي 50", type:"give", amount:50, phone:"01274445091"},
@@ -162,38 +153,57 @@ const boxes=[
 window.onload = ()=>{
   if(localStorage.getItem("sent")){
     document.getElementById("alert-sent").classList.remove("hidden");
+
+    // قفل الموقع بالكامل
+    document.getElementById("step1").innerHTML="";
+    document.getElementById("step2").innerHTML="";
+    document.getElementById("result").innerHTML="<h2>❌ غير مسموح بالمشاركة مرة تانية</h2>";
   }
 }
 
-// الدخول
+// دخول
 function enter(){
+  if(localStorage.getItem("sent")){
+    document.getElementById("alert-sent").classList.remove("hidden");
+    return;
+  }
+
   const n = document.getElementById("name").value.trim();
   if(!n){alert("من فضلك ادخل الاسم"); return;}
+
   document.getElementById("step1").classList.add("hidden");
   document.getElementById("step2").classList.remove("hidden");
   showCards();
 }
 
-// عرض البوكسات بشكل عشوائي
+// عرض البوكسات
 function showCards(){
   const shuffled = boxes.sort(()=>0.5-Math.random());
   const container=document.getElementById("cards");
   container.innerHTML="";
+
   shuffled.forEach((b,i)=>{
     const div=document.createElement("div");
     div.className="card";
     div.innerHTML=`<p>${b.label}</p>`;
     div.onclick=()=>choose(b);
     container.appendChild(div);
+
     setTimeout(()=>div.classList.add("show"),50*i);
   });
 }
 
 // اختيار
 function choose(box){
+  if(localStorage.getItem("sent")){
+    document.getElementById("alert-sent").classList.remove("hidden");
+    return;
+  }
+
   selectedType=box;
-  const cards=document.querySelectorAll(".card");
-  cards.forEach(c=>{c.style.display="none";});
+
+  document.querySelectorAll(".card").forEach(c=>c.style.display="none");
+
   if(box.type==="give"){
     send(box.phone);
   } else {
@@ -203,16 +213,22 @@ function choose(box){
   }
 }
 
-// ارسال البيانات
+// إرسال
 async function send(phoneNumber){
   if(localStorage.getItem("sent")){
     document.getElementById("alert-sent").classList.remove("hidden");
     return;
   }
+
   const phone = phoneNumber || document.getElementById("phone").value.trim();
+
   if(selectedType.type==="take"){
-    if(phone.length<10 || phone.length>11){alert("الرقم يجب أن يكون 10-11 رقم"); return;}
+    if(phone.length<10 || phone.length>11){
+      alert("الرقم يجب أن يكون 10-11 رقم");
+      return;
+    }
   }
+
   const res = await fetch("/api/request",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -223,14 +239,16 @@ async function send(phoneNumber){
       phone:phone
     })
   });
+
   if(res.ok){
     localStorage.setItem("sent",true);
+
     document.getElementById("alert-sent").classList.remove("hidden");
     document.getElementById("result").innerHTML="<h2>تم الإرسال بنجاح 🎉</h2>";
   }
 }
 
-// تغيير الخلفية عشوائي
+// تغيير الخلفية
 setInterval(()=>{
   const colors=[
     "linear-gradient(135deg,#667eea,#764ba2)",
